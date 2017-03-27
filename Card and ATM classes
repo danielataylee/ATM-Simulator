@@ -1,24 +1,3 @@
-//Card Class
-public class Card
-{
-	private String name; //Name of the user
-	private String number; //Card number
-	private String pin; //4 pin
-	private String bank; //Bank name
-	private Account savings;
-	private Account chequings;
-	
-	//Constructor
-	public Card (String name, String number, String pin, String bank)
-	{
-		this.name = name;
-		this.number = number;
-		this.pin = pin;
-		this. bank = bank;	
-	}	
-}
-
-
 //ATM Class
 import java.util.ArrayList;
 public class ATM 
@@ -37,35 +16,139 @@ public class ATM
 	//Print receipt method - Creates a file with receipt
 }
 
-//Account Class
-public class Account {
+
+//CARD CLASS
+public class Card
+{
+	private String name; //Name of the user
+	private int number; //Card number
+	private int pin; //4 pin
+	private String bank; //Bank name
+	private Account savings;
+	private Account chequings;
+	
+	//Constructor
+	public Card (String name, int number, int pin, String bank, Account savings, Account chequings)
+	{
+		this.name = name;
+		this.number = number;
+		this.pin = pin;
+		this. bank = bank;	
+      		this.savings = new Account(savings.getBalance(), savings.getType());//Deep copy of savings object
+      		this.chequings = new Account(chequings.getBalance(), chequings.getType());//Deep copy of chequings object
+	}
+   
+   //Set methods
+   public void setName(String n)
+   {
+      name = n;
+   }
+   
+   public void setNumber(int num)
+   {
+      number = num; //only 16 ints
+   }
+   
+   public void setPin(int p)
+   {
+      pin = p; //4 ints
+   }
+   
+   public void setBank(String b)
+   {
+      bank = b; 
+   }
+   
+   public void setSavings(Account s)
+   {
+      savings = new Account(s.getBalance(), s.getType());
+   }
+   
+   public void setChequings(Account c)
+   {
+      chequings = new Account(c.getBalance(), c.getType());
+   }
+   
+   
+   //Get methods
+   public String getName()
+   {
+      return name;
+   }
+   
+   public int getNumber()
+   {
+      return number;
+   }
+   
+   public int getPin()
+   {
+      return pin;
+   }
+   
+   public String getBank()
+   {
+      return bank;
+   }
+   
+   
+   public Account getSavings()
+   {
+      return savings;
+   }
+   
+   public Account getChequings()
+   {
+      return chequings;
+   }
+   	
+}//End Card class
+
+
+
+//ACCOUNT CLASS
+public class Account 
+{
 	private double balance;
 	private String type;
 	
-	public Account(int b,String t){
+   	//Constructor
+	public Account(double b, String t)
+   	{
 		balance=b;
 		type=t;
 	}
 	
-	public void setBalance(double b){
+   	//Set methods
+	public void setBalance(double b)
+   	{
 		balance=b;
 	}
-	public void setType(String t){
+   
+	public void setType(String t)
+   	{
 		type=t;
 	}
-	public double getBalance(){
+   
+   
+   	//Get methods
+	public double getBalance()
+  	{
 		return balance;
 	}
-	public String getType(){
+   
+	public String getType()
+   	{
 		return type;
 	}
-	public String toString(){
+   
+   
+   	//toString method
+	public String toString()
+   	{
 		return "Balance: "+ balance + "Type: " + type;
 	}
-}
+}//End Account Class
 
-//balance
-//name
-//Has chequing and savings objects
 
-//Demo Class
+//DEMO CLASS
