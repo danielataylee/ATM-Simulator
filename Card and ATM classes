@@ -38,6 +38,32 @@ public class ATM
 }
 
 //Account Class
+public class Account {
+	private double balance;
+	private String type;
+	
+	public Account(int b,String t){
+		balance=b;
+		type=t;
+	}
+	
+	public void setBalance(double b){
+		balance=b;
+	}
+	public void setType(String t){
+		type=t;
+	}
+	public double getBalance(){
+		return balance;
+	}
+	public String getType(){
+		return type;
+	}
+	public String toString(){
+		return "Balance: "+ balance + "Type: " + type;
+	}
+}
+
 //balance
 //name
 //Has chequing and savings objects
