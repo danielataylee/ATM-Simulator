@@ -1,0 +1,33 @@
+//Card Class
+public class Card {
+	
+	private String name;
+	private String number;
+	private String pin;
+	private String bank;
+	
+	public Card(String name, String number, String pin, String bank)
+	{
+		
+		this.name = name;
+		this.number = number;
+		this.pin = pin;
+		this. bank = bank;
+		
+	}
+	
+}
+
+
+//ATM Class
+import java.util.ArrayList;
+public class ATM {
+
+	private double chequingAccount;
+	private double savingsAccount;
+	private ArrayList<Card> cards;	
+	public ATM()
+	{
+		
+	}
+}
