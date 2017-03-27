@@ -1,33 +1,45 @@
 //Card Class
-public class Card {
+public class Card
+{
+	private String name; //Name of the user
+	private String number; //Card number
+	private String pin; //4 pin
+	private String bank; //Bank name
+	private Account savings;
+	private Account chequings;
 	
-	private String name;
-	private String number;
-	private String pin;
-	private String bank;
-	
-	public Card(String name, String number, String pin, String bank)
+	//Constructor
+	public Card (String name, String number, String pin, String bank)
 	{
-		
 		this.name = name;
 		this.number = number;
 		this.pin = pin;
-		this. bank = bank;
-		
-	}
-	
+		this. bank = bank;	
+	}	
 }
 
 
 //ATM Class
 import java.util.ArrayList;
-public class ATM {
-
+public class ATM 
+{
 	private double chequingAccount;
 	private double savingsAccount;
-	private ArrayList<Card> cards;	
-	public ATM()
-	{
-		
-	}
+	private ArrayList<Card> cards; //Array of cards object	
+	
+	//Constructor
+	public ATM(){}
+	
+	//Deposit method
+	//Withdraw method
+	//Transfer method
+	//Check Balance method
+	//Print receipt method - Creates a file with receipt
 }
+
+//Account Class
+//balance
+//name
+//Has chequing and savings objects
+
+//Demo Class
