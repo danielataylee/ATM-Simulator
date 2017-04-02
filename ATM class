@@ -1,0 +1,189 @@
+//ATM Class, used the methods and attributes from the Card class and Account class in the github files
+import java.util.ArrayList;
+public class ATM 
+{
+	//attributes
+	private ArrayList<Card> cards = new ArrayList<Card>();
+	private int cardIndexNumber;
+	
+	//Blank constructor
+	public ATM(){}
+	
+	//Adds a card to the cards array
+	public void createCard(String name, int number, int pin, String bank, Account savings, Account chequing)
+	{
+		//tests to make sure the pin and card number are the right lengths
+		String pinTest = Integer.toString(pin);
+		String numTest = Integer.toString(number);
+		if(pinTest.length()==4&&numTest.length()==16)
+		{
+			Card c = new Card(name, number, pin, bank, savings, chequing);
+			cards.add(c);
+		}
+		else if(pinTest.length()!=4)
+		{
+			System.out.println("Your pin can only be 4 digits!");
+		}
+		else if(numTest.length()!=16)
+		{
+			System.out.println("Your card number can only be 16 digits!");
+		}
+	}
+	//Enter PIN and Card Number, and it finds the matching card/account
+	public boolean enter(int cn, int pin)
+	{
+		for(int i = 0; i<cards.size();i++)
+		{
+			if(cards.get(i).getNumber()==cn&&cards.get(i).getPin()==pin)
+			{
+				cardIndexNumber = i;
+			}
+		}
+		return true;
+	}
+	
+	//Withdraw, enter in the account's type(Savings or Chequing) and a balance to withdraw from that account
+	public boolean withdraw(String type, int balance)
+	{
+		//selects the card that was matched in the Enter method
+		Card c = cards.get(cardIndexNumber);
+		Account acc;
+		if(type.equals("Savings"))
+		{
+			acc = c.getSavings();
+			if(balance<=acc.getBalance())
+			{
+				System.out.println("You have withdrawn $"+balance+" from your Savings account!");
+				acc.setBalance(acc.getBalance()-balance);
+				return true;
+			}
+			else
+			{
+				System.out.println("Your account only has $"+acc.getBalance()+" and cannot withdraw $"+balance);
+				return false;
+			}
+		}
+		else if(type.equals("Chequing"))
+		{
+			acc = c.getChequings();
+			if(balance<=acc.getBalance())
+			{
+				System.out.println("You have withdrawn $"+balance+" from your Chequing account!");
+				acc.setBalance(acc.getBalance()-balance);
+			}
+			else
+			{
+				System.out.println("Your account only has $"+acc.getBalance()+" and cannot withdraw $"+balance);
+				return false;
+			}
+			return true;
+		}
+		else
+		{
+			System.out.println("The account needs to be either Savings or Chequing!");
+			return false;
+		}
+	}
+	//Deposit the balance into the specified account type (Savings or Chequing)
+	public boolean deposit(String type, int balance)
+	{
+		Card c = cards.get(cardIndexNumber);
+		Account acc;
+		if(type.equals("Savings"))
+		{
+			acc = c.getSavings();
+			acc.setBalance(acc.getBalance()+balance);
+			return true;
+		}
+		else if(type.equals("Chequing"))
+		{
+			acc = c.getChequings();
+			acc.setBalance(acc.getBalance()+balance);
+			return true;
+		}
+		else
+		{
+			System.out.println("The account needs to be either Savings or Chequing!");
+			return false;
+		}
+	}
+	//Transfers funds from the account type 1 into the account type2 
+	public boolean transfer(String type1, String type2, int balance)
+	{
+		Card c = cards.get(cardIndexNumber);
+		if(type1.equals("Savings"))
+		{
+			//checks to make sure the two types aren't the same
+			if(type2.equals("Savings"))
+			{
+				System.out.println("You cannot transfer funds from Savings to Savings!");
+				return false;
+			}
+			else if(type2.equals("Chequing"))
+			{
+				//checks to make sure that the first account has enough of a balance
+				if(balance<=c.getSavings().getBalance())
+				{
+					System.out.println("Transfer complete!");
+					c.getSavings().setBalance(c.getSavings().getBalance()-balance);
+					c.getChequings().setBalance(c.getChequings().getBalance()+balance);
+					return true;
+				}
+				else
+				{
+					System.out.println("Your savings account does not have enough funds to transfer $"+balance);
+					return false;
+				}
+			}
+		}
+		else if(type1.equals("Chequing"))
+		{
+			if(type2.equals("Chequing"))
+			{
+				System.out.println("You cannot transfer funds from Chequing to Chequing!");
+				return false;
+			}
+			else if(type2.equals("Saving"))
+			{
+				if(balance<=c.getChequings().getBalance())
+				{
+					System.out.println("Transfer complete!");
+					c.getChequings().setBalance(c.getChequings().getBalance()-balance);
+					c.getSavings().setBalance(c.getSavings().getBalance()+balance);
+					return true;
+				}
+				else
+				{
+					System.out.println("Your chequing account does not have enough funds to transfer $"+balance);
+					return false;
+				}
+			}
+		}
+		else
+		{
+			System.out.println("The account you are transferring from must be either Chequing or Savings!");
+			return false;
+		}
+		return false;
+	}
+	//Checks the Balance of the specified account type
+	public boolean checkBalance(String type)
+	{
+		Card c = cards.get(cardIndexNumber);
+		if(type.equals("Savings"))
+		{
+			System.out.println("The balance for your savings account is: $"+c.getSavings().getBalance());
+			return true;
+		}
+		else if(type.equals("Chequing"))
+		{
+			System.out.println("The balance for your chequing account is: $"+c.getChequings().getBalance());
+			return true;
+		}
+		else
+		{
+			System.out.println("The account must be Savings or Chequings!");
+			return false;
+		}
+	}
+}
