@@ -1,3 +1,4 @@
+
 /*
 Demo for ATM
  */
@@ -15,7 +16,9 @@ import javafx.geometry.*;
 import javafx.scene.text.*;
 import javafx.scene.paint.*;
 import javafx.scene.image.*;
-import java.text.*;
+import javafx.scene.media.AudioClip;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 public class ATMDemo extends Application 
 {   
@@ -23,6 +26,10 @@ public class ATMDemo extends Application
     private ATM atm = new ATM();
     private int option; //(1=transfer, 2=balance, 3=deposit, 4=withdraw)
     private int option2; //(1=savings, 2=checkings)
+    private AudioClip buttonAudio;//Button pressed sound
+    private AudioClip removeCard;//Remove card noise
+    private AudioClip tranS; //Succeded transaction
+    private AudioClip tranF; //Failed transaction
     private Stage primaryStage;
     private Scene scene1;//Insert card
     private Scene scene2; //Enter pin
@@ -32,13 +39,14 @@ public class ATMDemo extends Application
     private Scene scene6; //balance inquiry screen
     private Scene scene7; //choose amount screen
     private Scene scene8; //transaction
+    private Scene scene9; //transfer choose account
     
-    //SCENE1 (Inster card) Attributes
+    //Scene1: Inster card
     private Text welcome; //Welcome, insert card
     private Image cardPhoto; //Photo of card
     private Button cardImage; //Button to have photo inside
     
-    //SCENE2 (Inster PIN) Attributes
+    //Scene2: Inster PIN
     private Text enterPIN;
     private TextField pin;
     private int count=0;//Keep track of how many nums in pin they enter
@@ -63,7 +71,6 @@ public class ATMDemo extends Application
     private Button emp2;
     private Button emp3; 
     
-    
     //Scene3: Main menu
     private Text welcome2;
     private Button transfer;
@@ -82,7 +89,7 @@ public class ATMDemo extends Application
     private Button checking;
     private Button savings;
     private Button main;//Go to main menu
-    
+    private Button exit6;
     
     //Scene6: Balance inquiry 
     private Text balanceInquiry;
@@ -102,11 +109,26 @@ public class ATMDemo extends Application
     private Text transaction;
     private Button main4, exit5;
     
+    //Scene9: Transfer account->account
+    private Text chooseAccount;
+    private Button sToc; //Savings to Checkings
+    private Button cTos; //Checkings to Savings
+    private Button main5;
+    private Button exit7;
+    
+    
+    
+    //START METHOD
     @Override
     public void start(Stage primaryStage)
     {   
         //To use many scenes in same stage
         this.primaryStage=primaryStage;
+        //For audio
+        buttonAudio = new AudioClip("file:///Users/danielataylee/Desktop/College/Winter%202016/CSCI%201101/Project/atmbuttonclick.mp3");
+        removeCard = new AudioClip("file:///Users/danielataylee/Desktop/College/Winter%202016/CSCI%201101/Project/removecard.mp3");
+        tranS = new AudioClip("file:///Users/danielataylee/Desktop/College/Winter%202016/CSCI%201101/Project/atmsuccess.mp3");        
+        tranF = new AudioClip("file:///Users/danielataylee/Desktop/College/Winter%202016/CSCI%201101/Project/atmfail.mp3");
         
         //SCENE1: WELCOME INSERT CARD
         welcome = new Text("Welcome to your bank!\n\n\tPlease insert your card");
@@ -234,21 +256,21 @@ public class ATMDemo extends Application
         deposit.setStyle("-fx-font:30 Myriad");
         withdraw = new Button("     WITHDRAW     ");
         withdraw.setStyle("-fx-font:30 Myriad");
-        exit = new Button(" EXIT ");
+        exit = new Button("   EXIT   ");
         exit.setStyle("-fx-font:25 Myriad; -fx-base: #DC143C");//red
         //Create horizontal box for 
         HBox box = new HBox(10);
         box.setAlignment(Pos.CENTER);
         box.getChildren().add(welcome2);
-        box.setPadding(new Insets(70,20,5,20)); //(top,right,bottom,left)
+        box.setPadding(new Insets(100,20,5,20)); //(top,right,bottom,left)
         box.setStyle("-fx-background-color:NAVY");
         //Create GridPane and add nodes
         GridPane menu = new GridPane();
-        menu.setHgap(10);
-        menu.setVgap(70);
+        menu.setHgap(1);
+        menu.setVgap(60);
         menu.setAlignment(Pos.CENTER); 
         menu.setStyle("-fx-background-color:NAVY");
-        menu.setPadding(new Insets(10,20,20,20)); 
+        menu.setPadding(new Insets(1,15,20,20)); 
         menu.add(transfer,0,0);//(col,row)
         menu.add(balance,2,0);
         menu.add(deposit,0,1);
@@ -270,12 +292,12 @@ public class ATMDemo extends Application
         bye.setFill(Color.WHITE);
         receipt = new Button("GET RECEIPT");
         receipt.setStyle("-fx-font:25 Myriad");
-        exit3 = new Button("  EXIT  ");
+        exit3 = new Button("   EXIT   ");
         exit3.setStyle("-fx-font:25 Myriad; -fx-base: #DC143C");//red
         //Create pane4 and add this node
         FlowPane pane4 = new FlowPane();
         pane4.setHgap(40);
-        pane4.setVgap(70);
+        pane4.setVgap(90);
         pane4.getChildren().addAll(bye,receipt,exit3);
         pane4.setAlignment(Pos.CENTER); 
         pane4.setStyle("-fx-background-color:NAVY");
@@ -302,6 +324,8 @@ public class ATMDemo extends Application
         savings.setStyle("-fx-font:30 Myriad");
         main = new Button("MAIN MENU");
         main.setStyle("-fx-font:25 Myriad; -fx-base: #FFFACD");//Light yellow
+        exit6 = new Button("     EXIT     ");
+        exit6.setStyle("-fx-font:25 Myriad; -fx-base: #DC143C");//red
         //Create GridPane and add nodes
         GridPane accounts = new GridPane();
         accounts.setHgap(100);
@@ -312,7 +336,7 @@ public class ATMDemo extends Application
         accounts.add(checking,0,0);//(col,row)
         accounts.add(savings,1,0);
         accounts.add(main,0,1);
-        accounts.add(exit,1,1);
+        accounts.add(exit6,1,1);
         //Add both to pane5
         BorderPane pane5 = new BorderPane();
         pane5.setTop(box2);
@@ -331,11 +355,11 @@ public class ATMDemo extends Application
         exit2 = new Button("   EXIT   ");
         exit2.setStyle("-fx-font:25 Myriad; -fx-base: #DC143C");//red
         FlowPane pane6 = new FlowPane();
-        pane6.setHgap(70);
+        pane6.setHgap(120);
         pane6.setVgap(80);
         pane6.setAlignment(Pos.CENTER); 
         pane6.setStyle("-fx-background-color:NAVY");
-        pane6.setPadding(new Insets(20,20,20,20)); 
+        pane6.setPadding(new Insets(20,50,50,20)); 
         //Add nodes to pane
         pane6.getChildren().addAll(balanceInquiry,main2,exit2);
         //Create scene for this pane
@@ -372,7 +396,7 @@ public class ATMDemo extends Application
         exit4.setStyle("-fx-font:25 Myriad; -fx-base: #DC143C");//red
         //Create GridPane and add nodes
         GridPane amounts = new GridPane();
-        amounts.setHgap(250);
+        amounts.setHgap(200);
         amounts.setVgap(50);
         amounts.setAlignment(Pos.CENTER); 
         amounts.setStyle("-fx-background-color:NAVY");
@@ -400,7 +424,7 @@ public class ATMDemo extends Application
         transaction.setFill(Color.WHITE);
         main4 = new Button("MAIN MENU");
         main4.setStyle("-fx-font:25 Myriad; -fx-base: #FFFACD");//Light yellow
-        exit5 = new Button("EXIT");
+        exit5 = new Button("   EXIT   ");
         exit5.setStyle("-fx-font:25 Myriad; -fx-base: #DC143C");//red
         FlowPane pane8 = new FlowPane();
         pane8.setHgap(70);
@@ -413,6 +437,31 @@ public class ATMDemo extends Application
         //Create scene for this pane
         Scene scene8 = new Scene (pane8,800,600);// (w,h)
         this.scene8 = scene8; //Access this scene through other methods
+        
+        
+        //SCENE9: Transfer account->account
+        chooseAccount = new Text("Choose accounts to make transfer");
+        chooseAccount.setFont(font1);
+        chooseAccount.setFill(Color.WHITE);
+        main5 = new Button("MAIN MENU");
+        main5.setStyle("-fx-font:25 Myriad; -fx-base: #FFFACD");//Light yellow
+        exit7 = new Button("   EXIT   ");
+        exit7.setStyle("-fx-font:25 Myriad; -fx-base: #DC143C");//red
+        sToc = new Button ("SAVINGS -> CHECKINGS");
+        sToc.setStyle("-fx-font:25 Myriad");
+        cTos = new Button("CHECKINGS -> SAVINGS");
+        cTos.setStyle("-fx-font:25 Myriad");
+        FlowPane pane9 = new FlowPane();
+        pane9.setHgap(60);
+        pane9.setVgap(100);
+        pane9.setAlignment(Pos.CENTER); 
+        pane9.setStyle("-fx-background-color:NAVY");
+        pane9.setPadding(new Insets(20,20,20,20)); 
+        //Add nodes to pane
+        pane9.getChildren().addAll(chooseAccount,sToc,cTos,main5,exit7);
+        //Create scene for this pane
+        Scene scene9 = new Scene (pane9,800,600);// (w,h)
+        this.scene9 = scene9; //Access this scene through other methods
         
         
         
@@ -458,7 +507,13 @@ public class ATMDemo extends Application
         main3.setOnAction(this::processButtonPress);
         exit4.setOnAction(this::processButtonPress);
         main4.setOnAction(this::processButtonPress);
+        main5.setOnAction(this::processButtonPress);
         exit5.setOnAction(this::processButtonPress);
+        exit6.setOnAction(this::processButtonPress);
+        exit7.setOnAction(this::processButtonPress);
+        sToc.setOnAction(this::processButtonPress);
+        cTos.setOnAction(this::processButtonPress);
+        
     }
     
     //Main method
@@ -472,6 +527,9 @@ public class ATMDemo extends Application
     //Method that processes buttons 
     public void processButtonPress(ActionEvent e)
     {
+        //Everytime button is pressed, play audio
+        buttonAudio.play();
+        
         //If they insert the card, take them to enter pin
         if (e.getSource()==cardImage)
         {
@@ -547,7 +605,7 @@ public class ATMDemo extends Application
         }
         
         //If on 2nd screen and button pressed is 7, and still have not reached count of 4
-        if (primaryStage.getScene()==scene2 && e.getSource()==b3 && count<4)
+        if (primaryStage.getScene()==scene2 && e.getSource()==b7 && count<4)
         {
             pin.setText(pin.getText()+"*");//Add a star
             count++;
@@ -599,10 +657,18 @@ public class ATMDemo extends Application
             atm.enter(cardNumber, pinNumb);//For index in ArrayList
         }
         
-        if(e.getSource()==cancel || e.getSource() == exit || e.getSource() == exit2 || e.getSource() == exit4 || e.getSource() == exit5)
+        if(e.getSource()==cancel || e.getSource() == exit || e.getSource() == exit2 || e.getSource() == exit4 || e.getSource() == exit5 || e.getSource() == exit6 || e.getSource() == exit7)
         {
             //Go to goodbye screen
             primaryStage.setScene(scene4);
+            removeCard.play();//Remove card sound
+        }
+        
+        //If get receipt pressed
+        if(e.getSource()==receipt)
+        {
+            removeCard.stop();//Remove card sound stop
+            //PROGRAM THIS FOR THE RECEIPT
         }
         
         //If on last screen and exit
@@ -612,7 +678,7 @@ public class ATMDemo extends Application
         }
         
         //If main pressed, go to main menu
-        if(e.getSource()==main || e.getSource()==main2 || e.getSource()==main3 || e.getSource()==main4)
+        if(e.getSource()==main || e.getSource()==main2 || e.getSource()==main3 || e.getSource()==main4 || e.getSource()==main5)
         {
             primaryStage.setScene(scene3);
         }
@@ -674,12 +740,14 @@ public class ATMDemo extends Application
                 //Print transaction completed
                 transaction.setText("Transaction completed sucesfully.");
                 primaryStage.setScene(scene8);
+                tranS.play();//Success sound
             }
             else
             {
                 //Print could not complete transaction
                 transaction.setText("Transaction failed, not enough funds.");
                 primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
             }
         }
         
@@ -691,12 +759,14 @@ public class ATMDemo extends Application
                 //Print transaction completed
                 transaction.setText("Transaction completed sucesfully.");
                 primaryStage.setScene(scene8);
+                tranS.play();//Success sound
             }
             else
             {
                 //Print could not complete transaction
                 transaction.setText("Transaction failed, not enough funds.");
                 primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
             }
         }
         
@@ -708,12 +778,14 @@ public class ATMDemo extends Application
                 //Print transaction completed
                 transaction.setText("Transaction completed sucesfully.");
                 primaryStage.setScene(scene8);
+                tranS.play();//Success sound
             }
             else
             {
                 //Print could not complete transaction
                 transaction.setText("Transaction failed, not enough funds.");
                 primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
             }
         }
         
@@ -725,12 +797,14 @@ public class ATMDemo extends Application
                 //Print transaction completed
                 transaction.setText("Transaction completed sucesfully.");
                 primaryStage.setScene(scene8);
+                tranS.play();//Success sound
             }
             else
             {
                 //Print could not complete transaction
                 transaction.setText("Transaction failed, not enough funds.");
                 primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
             }
         }
         
@@ -742,12 +816,14 @@ public class ATMDemo extends Application
                 //Print transaction completed
                 transaction.setText("Transaction completed sucesfully.");
                 primaryStage.setScene(scene8);
+                tranS.play();//Success sound
             }
             else
             {
                 //Print could not complete transaction
                 transaction.setText("Transaction failed, not enough funds.");
                 primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
             }
         }
         
@@ -759,12 +835,14 @@ public class ATMDemo extends Application
                 //Print transaction completed
                 transaction.setText("Transaction completed sucesfully.");
                 primaryStage.setScene(scene8);
+                tranS.play();//Success sound
             }
             else
             {
                 //Print could not complete transaction
                 transaction.setText("Transaction failed, not enough funds.");
                 primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
             }
         }
         
@@ -776,12 +854,14 @@ public class ATMDemo extends Application
                 //Print transaction completed
                 transaction.setText("Transaction completed sucesfully.");
                 primaryStage.setScene(scene8);
+                tranS.play();//Success sound
             }
             else
             {
                 //Print could not complete transaction
                 transaction.setText("Transaction failed, not enough funds.");
                 primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
             }
         }
         
@@ -793,12 +873,14 @@ public class ATMDemo extends Application
                 //Print transaction completed
                 transaction.setText("Transaction completed sucesfully.");
                 primaryStage.setScene(scene8);
+                tranS.play();//Success sound
             }
             else
             {
                 //Print could not complete transaction
                 transaction.setText("Transaction failed, not enough funds.");
                 primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
             }
         }
         
@@ -810,12 +892,14 @@ public class ATMDemo extends Application
                 //Print transaction completed
                 transaction.setText("Transaction completed sucesfully.");
                 primaryStage.setScene(scene8);
+                tranS.play();//Success sound
             }
             else
             {
                 //Print could not complete transaction
                 transaction.setText("Transaction failed, not enough funds.");
                 primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
             }
         }
         
@@ -827,12 +911,14 @@ public class ATMDemo extends Application
                 //Print transaction completed
                 transaction.setText("Transaction completed sucesfully.");
                 primaryStage.setScene(scene8);
+                tranS.play();//Success sound
             }
             else
             {
                 //Print could not complete transaction
                 transaction.setText("Transaction failed, not enough funds.");
                 primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
             }
         }
         
@@ -844,12 +930,14 @@ public class ATMDemo extends Application
                 //Print transaction completed
                 transaction.setText("Transaction completed sucesfully.");
                 primaryStage.setScene(scene8);
+                tranS.play();//Success sound
             }
             else
             {
                 //Print could not complete transaction
                 transaction.setText("Transaction failed, not enough funds.");
                 primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
             }
         }
         
@@ -861,12 +949,14 @@ public class ATMDemo extends Application
                 //Print transaction completed
                 transaction.setText("Transaction completed sucesfully.");
                 primaryStage.setScene(scene8);
+                tranS.play();//Success sound
             }
             else
             {
                 //Print could not complete transaction
                 transaction.setText("Transaction failed, not enough funds.");
                 primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
             }
         }
         
@@ -902,6 +992,7 @@ public class ATMDemo extends Application
             //Print transaction completed
             transaction.setText("Transaction completed sucesfully.");
             primaryStage.setScene(scene8);
+            tranS.play();//Success sound
 
         }
         
@@ -912,6 +1003,7 @@ public class ATMDemo extends Application
             //Print transaction completed
             transaction.setText("Transaction completed sucesfully.");
             primaryStage.setScene(scene8);
+            tranS.play();//Success sound
 
         }
         
@@ -922,6 +1014,7 @@ public class ATMDemo extends Application
             //Print transaction completed
             transaction.setText("Transaction completed sucesfully.");
             primaryStage.setScene(scene8);
+            tranS.play();//Success sound
 
         }
         
@@ -932,6 +1025,7 @@ public class ATMDemo extends Application
             //Print transaction completed
             transaction.setText("Transaction completed sucesfully.");
             primaryStage.setScene(scene8);
+            tranS.play();//Success sound
 
         }
         
@@ -942,6 +1036,7 @@ public class ATMDemo extends Application
             //Print transaction completed
             transaction.setText("Transaction completed sucesfully.");
             primaryStage.setScene(scene8);
+            tranS.play();//Success sound
 
         }
         
@@ -952,6 +1047,7 @@ public class ATMDemo extends Application
             //Print transaction completed
             transaction.setText("Transaction completed sucesfully.");
             primaryStage.setScene(scene8);
+            tranS.play();//Success sound
 
         }
         
@@ -962,6 +1058,7 @@ public class ATMDemo extends Application
             //Print transaction completed
             transaction.setText("Transaction completed sucesfully.");
             primaryStage.setScene(scene8);
+            tranS.play();//Success sound
 
         }
         
@@ -972,6 +1069,7 @@ public class ATMDemo extends Application
             //Print transaction completed
             transaction.setText("Transaction completed sucesfully.");
             primaryStage.setScene(scene8);
+            tranS.play();//Success sound
 
         }
         
@@ -982,6 +1080,7 @@ public class ATMDemo extends Application
             //Print transaction completed
             transaction.setText("Transaction completed sucesfully.");
             primaryStage.setScene(scene8);
+            tranS.play();//Success sound
 
         }
         
@@ -992,6 +1091,7 @@ public class ATMDemo extends Application
             //Print transaction completed
             transaction.setText("Transaction completed sucesfully.");
             primaryStage.setScene(scene8);
+            tranS.play();//Success sound
 
         }
         
@@ -1002,6 +1102,7 @@ public class ATMDemo extends Application
             //Print transaction completed
             transaction.setText("Transaction completed sucesfully.");
             primaryStage.setScene(scene8);
+            tranS.play();//Success sound
 
         }
         
@@ -1012,9 +1113,264 @@ public class ATMDemo extends Application
             //Print transaction completed
             transaction.setText("Transaction completed sucesfully.");
             primaryStage.setScene(scene8);
+            tranS.play();//Success sound
 
+        }
+        
+        
+        
+        //If transfer  
+        if(e.getSource()==transfer)
+        {
+            primaryStage.setScene(scene9);//Choose account to transfer from to
+            option=1;//(1=transfer, 2=balance, 3=deposit, 4=withdraw)  
+        }
+        
+        //If pressed savings to checkings and want to transfer (option=1)
+        if(e.getSource()==sToc && option==1)
+        {
+            //Choose amount
+            primaryStage.setScene(scene7);
+            option2=1;//(1=savings to checkings, 2=checkings to savings)
+        }
+        
+        //If pressed checkings to savings and want to transfer (option=1)
+        if(e.getSource()==cTos && option==1)
+        {
+            //Choose amount
+            primaryStage.setScene(scene7);
+            option2=2;//(1=savings to checkings, 2=checkings to savings)
+        }
+        
+        //Transfer method: (from this, to this, amount)
+        //If transfer from savings to checkings(option=1 and option2=1) and pressed 20
+        if (e.getSource()==b20 && option==1 && option2==1)
+        {
+            if(atm.transfer("Savings", "Checkings", 20))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from checkings to savings(option=1 and option2=2) and pressed 20
+        if (e.getSource()==b20 && option==1 && option2==2)
+        {
+            if(atm.transfer("Checkings", "Savings", 20))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        
+        //If transfer from savings to checkings(option=1 and option2=1) and pressed 40
+        if (e.getSource()==b40 && option==1 && option2==1)
+        {
+            if(atm.transfer("Savings", "Checkings", 40))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from checkings to savings(option=1 and option2=2) and pressed 40
+        if (e.getSource()==b40 && option==1 && option2==2)
+        {
+            if(atm.transfer("Checkings", "Savings", 40))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from savings to checkings(option=1 and option2=1) and pressed 60
+        if (e.getSource()==b60 && option==1 && option2==1)
+        {
+            if(atm.transfer("Savings", "Checkings", 60))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from checkings to savings(option=1 and option2=2) and pressed 60
+        if (e.getSource()==b60 && option==1 && option2==2)
+        {
+            if(atm.transfer("Checkings", "Savings", 60))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from savings to checkings(option=1 and option2=1) and pressed 80
+        if (e.getSource()==b80 && option==1 && option2==1)
+        {
+            if(atm.transfer("Savings", "Checkings", 80))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from checkings to savings(option=1 and option2=2) and pressed 80
+        if (e.getSource()==b80 && option==1 && option2==2)
+        {
+            if(atm.transfer("Checkings", "Savings", 80))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from savings to checkings(option=1 and option2=1) and pressed 100
+        if (e.getSource()==b100 && option==1 && option2==1)
+        {
+            if(atm.transfer("Savings", "Checkings", 100))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from checkings to savings(option=1 and option2=2) and pressed 100
+        if (e.getSource()==b100 && option==1 && option2==2)
+        {
+            if(atm.transfer("Checkings", "Savings", 100))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from savings to checkings(option=1 and option2=1) and pressed 200
+        if (e.getSource()==b200 && option==1 && option2==1)
+        {
+            if(atm.transfer("Savings", "Checkings", 200))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from checkings to savings(option=1 and option2=2) and pressed 200
+        if (e.getSource()==b200 && option==1 && option2==2)
+        {
+            if(atm.transfer("Checkings", "Savings", 200))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
         }
         
     }
 }
-
