@@ -24,7 +24,7 @@ public class ATMDemo extends Application
     private Scene scene3; //Main menu
     private Scene scene4; //Goodbye screen
     private Scene scene5; //choose account screen
-    private Scene scene6; //choose account screen
+    private Scene scene6; //balance inquiry screen
     
     //SCENE1 (Inster card) Attributes
     private Text welcome; //Welcome, insert card
