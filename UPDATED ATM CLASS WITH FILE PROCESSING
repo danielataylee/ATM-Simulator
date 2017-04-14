@@ -1,0 +1,241 @@
+//ATM Class that aggregates Card class and Account class
+
+import java.io.*;
+import java.util.ArrayList;
+
+public class ATM 
+{
+	//attributes
+	private ArrayList<Card> cards = new ArrayList<Card>();
+	private int cardIndexNumber;
+	
+	//Blank constructor
+	public ATM(){}
+	
+	//Adds a card to the cards array
+	public void createCard(String number, int pin, Account savings, Account chequing)
+	{
+		//tests to make sure the pin and card number are the right lengths
+		String pinTest = Integer.toString(pin);
+		
+		//if pin is 4 digits and card number is 16 digits
+		if(pinTest.length()==4 && number.length()==16)
+		{
+			Card c = new Card(number, pin, savings, chequing);
+			cards.add(c);//Add it to array
+		}
+		//if the pin isn't four digits
+		else if(pinTest.length()!=4)
+		{
+			System.out.println("Your pin can only be 4 digits!");
+		}
+		//if the card number isn't 16 digits
+		else if(number.length()!=16)
+		{
+			System.out.println("Your card number can only be 16 digits!");
+		}
+	}
+        
+	//Enter PIN and Card Number, and it finds the matching card/account
+	public boolean enter(String cn, int pin)
+	{
+		//while less than the number of cards in the card arraylist
+		for(int i = 0; i<cards.size();i++)
+		{
+			//if if the cardnumber and pin matches a card in the card arraylist
+			if(cards.get(i).getNumber().equals(cn) && cards.get(i).getPin()==pin)
+			{
+				cardIndexNumber = i;
+			}
+		}
+		return true;
+	}
+	
+        public Card getCard(){return cards.get(cardIndexNumber);}
+        
+	//Withdraw, enter in the account's type(Savings or Chequing) and a balance to withdraw from that account
+	public boolean withdraw(String type, double balance)
+	{
+		//selects the card that was matched in the Enter method
+		Card c = cards.get(cardIndexNumber);
+		Account acc;
+                
+		//if its a saving account
+		if(type.equals("Savings"))
+		{
+			acc = c.getSavings();
+			//if the entered balance is less than or equal to the balance of the account
+			if(balance<=acc.getBalance())
+			{
+				//System.out.println("You have withdrawn $"+balance+" from your Savings account!");
+				acc.setBalance(acc.getBalance()-balance);
+				return true;
+			}
+			else
+			// if the entered balance is higher than the balance in the account
+			{
+				//System.out.println("Your account only has $"+acc.getBalance()+" and cannot withdraw $"+balance);
+				return false;
+			}
+		}
+		else if(type.equals("Chequing"))
+		{
+			acc = c.getChequing();
+			//if the entered balance is less than or equal to the balance of the account
+			if(balance<=acc.getBalance())
+			{
+				//System.out.println("You have withdrawn $"+balance+" from your Chequing account!");
+				acc.setBalance(acc.getBalance()-balance);
+                                return true;
+			}
+			// if the entered balance is higher than the balance in the account
+			else
+			{
+				//System.out.println("Your account only has $"+acc.getBalance()+" and cannot withdraw $"+balance);
+				return false;
+			}
+			
+		}
+		//if the entered account type wasn't Savings or Chequing
+		else
+		{
+			System.out.println("The account needs to be either Savings or Chequing!");
+			return false;
+		}
+                
+	}
+	//Deposit the balance into the specified account type (Savings or Chequing)
+	public boolean deposit(String type, int balance)
+	{
+		Card c = cards.get(cardIndexNumber);
+		Account acc;
+                
+		//if its a savings account
+		if(type.equals("Savings"))
+		{
+			acc = c.getSavings();
+			acc.setBalance(acc.getBalance()+balance);
+			return true;
+		}
+		//if its a chequing account
+		else if(type.equals("Chequing"))
+		{
+			acc = c.getChequing();
+			acc.setBalance(acc.getBalance()+balance);
+			return true;
+		}
+		//if neither a savings account or chequing account
+		else
+		{
+			System.out.println("The account needs to be either Savings or Chequing!");
+			return false;
+		}
+	}
+	//Transfers funds from the account type 1 into the account type2 
+	public boolean transfer(String type1, String type2, int balance)
+	{
+		Card c = cards.get(cardIndexNumber);
+		//if its a saving account
+		if(type1.equals("Savings"))
+		{
+			//checks to make sure the two types aren't the same
+			if(type2.equals("Savings"))
+			{
+				//System.out.println("You cannot transfer funds from Savings to Savings!");
+				return false;
+			}
+			//if the second account is a chequing account
+			else if(type2.equals("Chequing"))
+			{
+				//checks to make sure that the first account has enough of a balance
+				if(balance<=c.getSavings().getBalance())
+				{
+					//System.out.println("Transfer complete!");
+					c.getSavings().setBalance(c.getSavings().getBalance()-balance);
+					c.getChequing().setBalance(c.getChequing().getBalance()+balance);
+					return true;
+				}
+				//if the entered balance is over the balance of the account
+				else
+				{
+					//System.out.println("Your savings account does not have enough funds to transfer $"+balance);
+					return false;
+				}
+			}
+		}
+		//if the first account is chequing
+		else if(type1.equals("Chequing"))
+		{
+			//makes sure the second account isn't the same
+			if(type2.equals("Chequing"))
+			{
+				//System.out.println("You cannot transfer funds from Chequing to Chequing!");
+				return false;
+			}
+			//if the second account is saving
+			else if(type2.equals("Savings"))
+			{
+				//if the balance is less than or equal to the balance of the first account
+				if(balance<=c.getChequing().getBalance())
+				{
+					//System.out.println("Transfer complete!");
+					c.getChequing().setBalance(c.getChequing().getBalance()-balance);
+					c.getSavings().setBalance(c.getSavings().getBalance()+balance);
+					return true;
+				}
+				//if the balance is higher than the balance of the first account
+				else
+				{
+					//System.out.println("Your chequing account does not have enough funds to transfer $"+balance);
+					return false;
+				}
+			}
+		}
+		//if the entered account type wasn't savings or chequing
+		else
+		{
+			System.out.println("The account you are transferring from must be either Chequing or Savings!");
+			return false;
+		}
+		return false;
+	}
+        
+	//Returns the Balance of the specified account type
+	public double checkBalance(String type)
+	{
+		Card c = cards.get(cardIndexNumber);
+		//if its a savings account
+		if(type.equals("Savings"))
+		{
+			//System.out.println("The balance for your savings account is: $"+c.getSavings().getBalance());
+			return c.getSavings().getBalance();
+		}
+		//if its a chequing account
+		else if(type.equals("Chequing"))
+		{
+			//System.out.println("The balance for your chequing account is: $"+c.getChequing().getBalance());
+			return c.getChequing().getBalance();
+		}
+		//if its neither a saving or chequing account
+		else
+		{
+			System.out.println("The account must be Savings or Chequings!");
+                        return -1;
+		}
+	}
+	public void printReceipt() throws IOException
+	{
+		File outFile = new File("receipt.txt");
+		PrintWriter output = new PrintWriter(outFile);
+		output.println("RECEIPT");
+		output.println("-------");
+		output.println("");
+		output.println("Card Number: "+cards.get(cardIndexNumber).getNumber());
+		output.println("");
+		output.println("Saving Account Balance: "+cards.get(cardIndexNumber).getSavings().getBalance());
+		output.println("Chequing Account Balance: "+cards.get(cardIndexNumber).getChequing().getBalance());
+		output.println("");
+		output.println("Thank you for using our Bank!");
+		output.close();
+	}
+}
