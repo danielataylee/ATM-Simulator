@@ -1,0 +1,66 @@
+//CARD CLASS
+
+
+
+
+public class Card
+{
+	private String number; //Card number
+	private int pin; //4 pin
+	private Account savings;
+	private Account chequing;
+	
+	//Constructor
+	public Card (String number, int pin, Account savings, Account checkings)
+	{
+		this.number = number;
+		this.pin = pin;	
+      		this.savings = new Account(savings.getBalance(), savings.getType());//Deep copy of savings object
+      		this.chequing = new Account(checkings.getBalance(), checkings.getType());//Deep copy of checkings object
+	}
+   
+   //Set methods
+   public void setNumber(String num)
+   {
+      number = num; //only 16 ints
+   }
+   
+   public void setPin(int p)
+   {
+      pin = p; //4 ints
+   }
+   
+   
+   public void setSavings(Account s)
+   {
+      savings = new Account(s.getBalance(), s.getType());
+   }
+   
+   public void setCheckings(Account c)
+   {
+      chequing = new Account(c.getBalance(), c.getType());
+   }
+   
+   
+   //Get methods
+   public String getNumber()
+   {
+      return number;
+   }
+   
+   public int getPin()
+   {
+      return pin;
+   }
+   
+   public Account getSavings()
+   {
+      return savings;
+   }
+   
+   public Account getChequing()
+   {
+      return chequing;
+   }
+   	
+}//End Card class
