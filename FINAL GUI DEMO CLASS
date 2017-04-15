@@ -1,0 +1,1383 @@
+/*
+Demo for ATM
+ */
+package atm;
+
+
+import java.text.NumberFormat;
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
+import javafx.geometry.*;
+import javafx.scene.text.*;
+import javafx.scene.paint.*;
+import javafx.scene.image.*;
+import javafx.scene.media.AudioClip;
+import java.io.*;
+
+public class ATMDemo extends Application 
+{   
+    //Instance variables
+    private ATM atm = new ATM();
+    private int option; //(1=transfer, 2=balance, 3=deposit, 4=withdraw)
+    private int option2; //(1=savings, 2=checkings)
+    private AudioClip buttonAudio;//Button pressed sound
+    private AudioClip removeCard;//Remove card noise
+    private AudioClip tranS; //Succeded transaction
+    private AudioClip tranF; //Failed transaction
+    private Stage primaryStage;
+    private Scene scene1;//Insert card
+    private Scene scene2; //Enter pin
+    private Scene scene3; //Main menu
+    private Scene scene4; //Goodbye screen
+    private Scene scene5; //choose account screen
+    private Scene scene6; //balance inquiry screen
+    private Scene scene7; //choose amount screen
+    private Scene scene8; //transaction
+    private Scene scene9; //transfer choose account
+    
+    //Scene1: Inster card
+    private Text welcome; //Welcome, insert card
+    private Image cardPhoto; //Photo of card
+    private Button cardImage; //Button to have photo inside
+    
+    //Scene2: Inster PIN
+    private Text enterPIN;
+    private TextField pin;
+    private int count=0;//Keep track of how many nums in pin they enter
+    private String pinNum="";
+    private int pinNumb;
+    
+    //KEYPAD BUTTONS
+    private Button b1;
+    private Button b2;
+    private Button b3;
+    private Button b4;
+    private Button b5;
+    private Button b6;
+    private Button b7;
+    private Button b8;
+    private Button b9;
+    private Button b0;
+    private Button cancel;
+    private Button clear;
+    private Button enter;
+    private Button emp1;
+    private Button emp2;
+    private Button emp3; 
+    
+    //Scene3: Main menu
+    private Text welcome2;
+    private Button transfer;
+    private Button balance;
+    private Button deposit;
+    private Button withdraw;
+    private Button exit; 
+    
+    //Scene4: Goodbye screen
+    private Text bye;
+    private Button receipt;
+    private Button exit3;
+       
+    //Scene5: Choose account
+    private Text choose;
+    private Button checking;
+    private Button savings;
+    private Button main;//Go to main menu
+    private Button exit6;
+    
+    //Scene6: Balance inquiry 
+    private Text balanceInquiry;
+    private Button main2, exit2;
+   
+    //Scene7: Withdraw or deposit
+    private Text chooseAmount;
+    private Button b20;
+    private Button b40;
+    private Button b60;
+    private Button b80;
+    private Button b100;
+    private Button b200;
+    private Button main3, exit4;
+    
+    //Scene8: Transaction completed or not
+    private Text transaction;
+    private Button main4, exit5;
+    
+    //Scene9: Transfer account->account
+    private Text chooseAccount;
+    private Button sToc; //Savings to Checkings
+    private Button cTos; //Checkings to Savings
+    private Button main5;
+    private Button exit7;
+    
+    
+    
+    //START METHOD
+    @Override
+    public void start(Stage primaryStage)
+    {   
+        //To use many scenes in same stage
+        this.primaryStage=primaryStage;
+        //For audio
+        buttonAudio = new AudioClip("file:///Users/danielataylee/Desktop/College/Winter%202016/CSCI%201101/Project/atmbuttonclick.mp3");
+        removeCard = new AudioClip("file:///Users/danielataylee/Desktop/College/Winter%202016/CSCI%201101/Project/removecard.mp3");
+        tranS = new AudioClip("file:///Users/danielataylee/Desktop/College/Winter%202016/CSCI%201101/Project/atmsuccess.mp3");        
+        tranF = new AudioClip("file:///Users/danielataylee/Desktop/College/Winter%202016/CSCI%201101/Project/atmfail.mp3");
+        
+        //SCENE1: WELCOME INSERT CARD
+        welcome = new Text("Welcome to your bank!\n\n\tPlease insert your card");
+        Font font1 = Font.font("Myriad", FontWeight.BOLD, 35);
+        welcome.setFont(font1);
+        welcome.setFill(Color.WHITE);
+        cardPhoto = new Image("file://localhost/Users/danielataylee/NetBeansProjects/ATM/666645-200.png");
+        cardImage = new Button();
+        cardImage.setGraphic(new ImageView(cardPhoto)); 
+        
+        //Create pane
+        FlowPane pane1 = new FlowPane();
+        pane1.setHgap(40);
+        pane1.setVgap(80);
+        pane1.setAlignment(Pos.CENTER); 
+        pane1.setStyle("-fx-background-color:NAVY");
+        pane1.setPadding(new Insets(20,20,20,20)); 
+        //Add nodes to pane
+        pane1.getChildren().addAll(welcome,cardImage);
+        //Create scene for this pane
+        Scene scene1 = new Scene (pane1,800,600);// (w,h)
+        this.scene1=scene1; //Access this scene through other methods
+        
+        
+        //SCENE2: INSERT PIN
+        enterPIN = new Text("Please enter your PIN to continue");
+        enterPIN.setFont(font1);
+        enterPIN.setFill(Color.WHITE);
+        pin = new TextField("");
+        pin.setFont(font1);
+        pin.setDisable(true);//Cannot write on it
+        //Put this in a vertical box
+        VBox pinn = new VBox(20);
+        pinn.setAlignment(Pos.CENTER);
+        pinn.getChildren().addAll(enterPIN, pin);
+        pinn.setPadding(new Insets(5,20,10,20)); //(top,right,bottom,left)
+        
+        //KEYPAD
+        //Declare buttons
+        b1 = new Button("1");
+        b2 = new Button("2");
+        b3 = new Button("3");
+        b4 = new Button("4");
+        b5 = new Button("5");
+        b6 = new Button("6");
+        b7 = new Button("7");
+        b8 = new Button("8");
+        b9 = new Button("9");
+        b0 = new Button("0");
+        cancel = new Button("CANCEL");
+        clear = new Button(" CLEAR  ");
+        enter = new Button(" ENTER  ");
+        emp1 = new Button("  ");
+        emp2 = new Button("  "); 
+        emp3 = new Button("               ");
+        
+        //Set the style of buttons
+        b1.setStyle("-fx-font:40 Arial");
+        b2.setStyle("-fx-font:40 Arial");
+        b3.setStyle("-fx-font:40 Arial");
+        b4.setStyle("-fx-font:40 Arial");
+        b5.setStyle("-fx-font:40 Arial");
+        b6.setStyle("-fx-font:40 Arial");
+        b7.setStyle("-fx-font:40 Arial");
+        b8.setStyle("-fx-font:40 Arial");
+        b9.setStyle("-fx-font:40 Arial");
+        b0.setStyle("-fx-font:40 Arial");
+        cancel.setStyle("-fx-font:40 Arial; -fx-base: #DC143C");//RED
+        clear.setStyle("-fx-font:40 Arial; -fx-base: #FFFFE0");//YELLOW
+        enter.setStyle("-fx-font:40 Arial; -fx-base: #b6e7c9;");//GREEN
+        emp1.setStyle("-fx-font:40 Arial");
+        emp2.setStyle("-fx-font:40 Arial");
+        emp3.setStyle("-fx-font:40 Arial");
+        
+        //Create grid pane for numbers
+        GridPane kb = new GridPane();
+        kb.setHgap(5);
+        kb.setVgap(5);
+        kb.setAlignment(Pos.CENTER);
+        kb.setStyle("-fx-background-color:LIGHTGREY");
+        kb.setPadding(new Insets(20,20,20,20));
+        
+        //Add buttons to pane
+        kb.add(b1,0,0); //(col, row)
+        kb.add(b2,1,0);
+        kb.add(b3,2,0);
+        kb.add(cancel,3,0);
+        kb.add(b4,0,1);
+        kb.add(b5,1,1);
+        kb.add(b6,2,1);
+        kb.add(clear,3,1);
+        kb.add(b7,0,2);
+        kb.add(b8,1,2);
+        kb.add(b9,2,2);
+        kb.add(enter,3,2);
+        kb.add(emp1,0,3);
+        kb.add(b0,1,3);
+        kb.add(emp2,2,3);
+        kb.add(emp3,3,3);
+        
+        //Cannot press this buttons
+        emp1.setDisable(true);
+        emp2.setDisable(true);
+        emp3.setDisable(true);
+        
+        //Create border pane for scene2
+        BorderPane pane2 = new BorderPane();
+        pane2.setTop(pinn); //Place the VBox
+        pane2.setCenter(kb); //Place the keypad
+        pane2.setStyle("-fx-background-color:NAVY");
+        pane2.setPadding(new Insets(20,20,20,20)); 
+        Scene scene2 = new Scene(pane2,800,600);
+        this.scene2=scene2;
+
+        
+        //SCENE3: Main menu
+        welcome2 = new Text("What can we do for you today?");
+        welcome2.setFont(font1);
+        welcome2.setFill(Color.WHITE);
+        transfer = new Button("     TRANSFER     ");
+        transfer.setStyle("-fx-font:30 Myriad");
+        balance = new Button("BALANCE INQUIRY");
+        balance.setStyle("-fx-font:30 Myriad");
+        deposit = new Button("      DEPOSIT      ");
+        deposit.setStyle("-fx-font:30 Myriad");
+        withdraw = new Button("     WITHDRAW     ");
+        withdraw.setStyle("-fx-font:30 Myriad");
+        exit = new Button("   EXIT   ");
+        exit.setStyle("-fx-font:25 Myriad; -fx-base: #DC143C");//red
+        //Create horizontal box for 
+        HBox box = new HBox(10);
+        box.setAlignment(Pos.CENTER);
+        box.getChildren().add(welcome2);
+        box.setPadding(new Insets(100,20,5,20)); //(top,right,bottom,left)
+        box.setStyle("-fx-background-color:NAVY");
+        //Create GridPane and add nodes
+        GridPane menu = new GridPane();
+        menu.setHgap(1);
+        menu.setVgap(60);
+        menu.setAlignment(Pos.CENTER); 
+        menu.setStyle("-fx-background-color:NAVY");
+        menu.setPadding(new Insets(1,15,20,20)); 
+        menu.add(transfer,0,0);//(col,row)
+        menu.add(balance,2,0);
+        menu.add(deposit,0,1);
+        menu.add(withdraw,2,1);
+        menu.add(exit,1,2);
+        //Add both to pane3
+        BorderPane pane3 = new BorderPane();
+        pane3.setTop(box);
+        pane3.setCenter(menu);
+        //Create scene object with this pane
+        Scene scene3 = new Scene(pane3,800,600);
+        this.scene3 = scene3;
+        
+        
+        
+        //SCENE4: Goodbye screen
+        bye = new Text("Thank you for using our services!\n\n\t\tPlease remove your card.");
+        bye.setFont(font1);
+        bye.setFill(Color.WHITE);
+        receipt = new Button("GET RECEIPT");
+        receipt.setStyle("-fx-font:25 Myriad");
+        exit3 = new Button("   EXIT   ");
+        exit3.setStyle("-fx-font:25 Myriad; -fx-base: #DC143C");//red
+        //Create pane4 and add this node
+        FlowPane pane4 = new FlowPane();
+        pane4.setHgap(40);
+        pane4.setVgap(90);
+        pane4.getChildren().addAll(bye,receipt,exit3);
+        pane4.setAlignment(Pos.CENTER); 
+        pane4.setStyle("-fx-background-color:NAVY");
+        pane4.setPadding(new Insets(20,20,20,20)); 
+        //Create scene4 for this pane
+        Scene scene4 = new Scene(pane4,800,600);
+        this.scene4 = scene4;
+        
+        
+        
+        //SCENE5: Choose account
+        choose = new Text("Choose an account");
+        choose.setFont(font1);
+        choose.setFill(Color.WHITE);
+        //Create horizontal box for 
+        HBox box2 = new HBox(10);
+        box2.setAlignment(Pos.CENTER);
+        box2.getChildren().add(choose);
+        box2.setPadding(new Insets(100,20,1,20)); //(top,right,bottom,left)
+        box2.setStyle("-fx-background-color:NAVY");
+        checking = new Button("CHECKING");
+        checking.setStyle("-fx-font:30 Myriad");
+        savings = new Button(" SAVINGS ");
+        savings.setStyle("-fx-font:30 Myriad");
+        main = new Button("MAIN MENU");
+        main.setStyle("-fx-font:25 Myriad; -fx-base: #FFFACD");//Light yellow
+        exit6 = new Button("     EXIT     ");
+        exit6.setStyle("-fx-font:25 Myriad; -fx-base: #DC143C");//red
+        //Create GridPane and add nodes
+        GridPane accounts = new GridPane();
+        accounts.setHgap(100);
+        accounts.setVgap(100);
+        accounts.setAlignment(Pos.CENTER); 
+        accounts.setStyle("-fx-background-color:NAVY");
+        accounts.setPadding(new Insets(1,20,20,20)); 
+        accounts.add(checking,0,0);//(col,row)
+        accounts.add(savings,1,0);
+        accounts.add(main,0,1);
+        accounts.add(exit6,1,1);
+        //Add both to pane5
+        BorderPane pane5 = new BorderPane();
+        pane5.setTop(box2);
+        pane5.setCenter(accounts);
+        //Create scene object with this pane
+        Scene scene5 = new Scene(pane5,800,600);
+        this.scene5 = scene5;
+        
+        
+        //SCENE6: Balance Inquiry
+        balanceInquiry = new Text();//Use ATM Class
+        balanceInquiry.setFont(font1);
+        balanceInquiry.setFill(Color.WHITE);
+        main2 = new Button("MAIN MENU");
+        main2.setStyle("-fx-font:25 Myriad; -fx-base: #FFFACD");//Light yellow
+        exit2 = new Button("   EXIT   ");
+        exit2.setStyle("-fx-font:25 Myriad; -fx-base: #DC143C");//red
+        FlowPane pane6 = new FlowPane();
+        pane6.setHgap(120);
+        pane6.setVgap(80);
+        pane6.setAlignment(Pos.CENTER); 
+        pane6.setStyle("-fx-background-color:NAVY");
+        pane6.setPadding(new Insets(20,50,50,20)); 
+        //Add nodes to pane
+        pane6.getChildren().addAll(balanceInquiry,main2,exit2);
+        //Create scene for this pane
+        Scene scene6 = new Scene (pane6,800,600);// (w,h)
+        this.scene6 = scene6; //Access this scene through other methods
+        
+        
+        
+        //SCENE7: Choose amount
+        chooseAmount = new Text("Choose amount");
+        chooseAmount.setFont(font1);
+        chooseAmount.setFill(Color.WHITE);
+        //Create horizontal box for 
+        HBox box3 = new HBox(10);
+        box3.setAlignment(Pos.CENTER);
+        box3.getChildren().add(chooseAmount);
+        box3.setPadding(new Insets(80,20,15,20)); //(top,right,bottom,left)
+        box3.setStyle("-fx-background-color:NAVY");
+        b20 = new Button("   $20   ");
+        b20.setStyle("-fx-font:30 Myriad");
+        b40 = new Button("   $40   ");
+        b40.setStyle("-fx-font:30 Myriad");
+        b60 = new Button("   $60   ");
+        b60.setStyle("-fx-font:30 Myriad");
+        b80 = new Button("   $80   ");
+        b80.setStyle("-fx-font:30 Myriad");
+        b100 = new Button("  $100  ");
+        b100.setStyle("-fx-font:30 Myriad");
+        b200 = new Button("  $200  ");
+        b200.setStyle("-fx-font:30 Myriad");
+        main3 = new Button("MAIN MENU");
+        main3.setStyle("-fx-font:25 Myriad; -fx-base: #FFFACD");//Light yellow
+        exit4 = new Button("    EXIT    ");
+        exit4.setStyle("-fx-font:25 Myriad; -fx-base: #DC143C");//red
+        //Create GridPane and add nodes
+        GridPane amounts = new GridPane();
+        amounts.setHgap(200);
+        amounts.setVgap(50);
+        amounts.setAlignment(Pos.CENTER); 
+        amounts.setStyle("-fx-background-color:NAVY");
+        amounts.setPadding(new Insets(10,20,20,20)); 
+        amounts.add(b20,0,0);//(col,row)
+        amounts.add(b40,1,0);
+        amounts.add(b60,0,1);
+        amounts.add(b80,1,1);
+        amounts.add(b100,0,2);
+        amounts.add(b200,1,2);
+        amounts.add(main3,0,3);
+        amounts.add(exit4,1,3);
+        //Add both to pane7
+        BorderPane pane7 = new BorderPane();
+        pane7.setTop(box3);
+        pane7.setCenter(amounts);
+        //Create scene object with this pane
+        Scene scene7 = new Scene(pane7,800,600);
+        this.scene7 = scene7;
+        
+        
+        //SCENE8: Transaction completed or not
+        transaction = new Text();
+        transaction.setFont(font1);
+        transaction.setFill(Color.WHITE);
+        main4 = new Button("MAIN MENU");
+        main4.setStyle("-fx-font:25 Myriad; -fx-base: #FFFACD");//Light yellow
+        exit5 = new Button("   EXIT   ");
+        exit5.setStyle("-fx-font:25 Myriad; -fx-base: #DC143C");//red
+        FlowPane pane8 = new FlowPane();
+        pane8.setHgap(70);
+        pane8.setVgap(80);
+        pane8.setAlignment(Pos.CENTER); 
+        pane8.setStyle("-fx-background-color:NAVY");
+        pane8.setPadding(new Insets(20,20,20,20)); 
+        //Add nodes to pane
+        pane8.getChildren().addAll(transaction,main4,exit5);
+        //Create scene for this pane
+        Scene scene8 = new Scene (pane8,800,600);// (w,h)
+        this.scene8 = scene8; //Access this scene through other methods
+        
+        
+        //SCENE9: Transfer account->account
+        chooseAccount = new Text("Choose accounts to make transfer");
+        chooseAccount.setFont(font1);
+        chooseAccount.setFill(Color.WHITE);
+        main5 = new Button("MAIN MENU");
+        main5.setStyle("-fx-font:25 Myriad; -fx-base: #FFFACD");//Light yellow
+        exit7 = new Button("   EXIT   ");
+        exit7.setStyle("-fx-font:25 Myriad; -fx-base: #DC143C");//red
+        sToc = new Button ("SAVINGS -> CHECKINGS");
+        sToc.setStyle("-fx-font:25 Myriad");
+        cTos = new Button("CHECKINGS -> SAVINGS");
+        cTos.setStyle("-fx-font:25 Myriad");
+        FlowPane pane9 = new FlowPane();
+        pane9.setHgap(60);
+        pane9.setVgap(100);
+        pane9.setAlignment(Pos.CENTER); 
+        pane9.setStyle("-fx-background-color:NAVY");
+        pane9.setPadding(new Insets(20,20,20,20)); 
+        //Add nodes to pane
+        pane9.getChildren().addAll(chooseAccount,sToc,cTos,main5,exit7);
+        //Create scene for this pane
+        Scene scene9 = new Scene (pane9,800,600);// (w,h)
+        this.scene9 = scene9; //Access this scene through other methods
+        
+        
+        
+        //Set stage to first screen: scene1
+        primaryStage.setScene(scene1);
+        primaryStage.setTitle("ATMDemo.java");
+        primaryStage.show();
+        primaryStage.setResizable(false);
+        
+        //Set buttons to action events
+        cardImage.setOnAction(this::processButtonPress);
+        b1.setOnAction(this::processButtonPress);
+        b2.setOnAction(this::processButtonPress);
+        b3.setOnAction(this::processButtonPress);
+        b4.setOnAction(this::processButtonPress);
+        b5.setOnAction(this::processButtonPress);
+        b6.setOnAction(this::processButtonPress);
+        b7.setOnAction(this::processButtonPress);
+        b8.setOnAction(this::processButtonPress);
+        b9.setOnAction(this::processButtonPress);
+        b0.setOnAction(this::processButtonPress);
+        clear.setOnAction(this::processButtonPress);
+        cancel.setOnAction(this::processButtonPress);
+        enter.setOnAction(this::processButtonPress);
+        transfer.setOnAction(this::processButtonPress);
+        balance.setOnAction(this::processButtonPress);
+        deposit.setOnAction(this::processButtonPress);
+        withdraw.setOnAction(this::processButtonPress);
+        exit.setOnAction(this::processButtonPress);
+        checking.setOnAction(this::processButtonPress);
+        savings.setOnAction(this::processButtonPress);
+        main.setOnAction(this::processButtonPress);
+        main2.setOnAction(this::processButtonPress);
+        exit2.setOnAction(this::processButtonPress);
+        receipt.setOnAction(this::processButtonPress);
+        exit3.setOnAction(this::processButtonPress);
+        b20.setOnAction(this::processButtonPress);
+        b40.setOnAction(this::processButtonPress);
+        b60.setOnAction(this::processButtonPress);
+        b80.setOnAction(this::processButtonPress);
+        b100.setOnAction(this::processButtonPress);
+        b200.setOnAction(this::processButtonPress);
+        main3.setOnAction(this::processButtonPress);
+        exit4.setOnAction(this::processButtonPress);
+        main4.setOnAction(this::processButtonPress);
+        main5.setOnAction(this::processButtonPress);
+        exit5.setOnAction(this::processButtonPress);
+        exit6.setOnAction(this::processButtonPress);
+        exit7.setOnAction(this::processButtonPress);
+        sToc.setOnAction(this::processButtonPress);
+        cTos.setOnAction(this::processButtonPress);
+        
+    }
+    
+    //Main method
+    public static void main(String[] args)
+    {
+        Application.launch(args);
+        
+    }
+    
+    
+    //Method that processes buttons 
+    public void processButtonPress(ActionEvent e)
+    {
+        //Everytime button is pressed, play audio
+        buttonAudio.play();
+        
+        //If they insert the card, take them to enter pin
+        if (e.getSource()==cardImage)
+        {
+            primaryStage.setScene(scene2);
+        }
+        
+        //If on 2nd screen and button pressed is clear, and count is more than 0
+        if (primaryStage.getScene()==scene2 && e.getSource()==clear && count>0)
+        {
+            if(count==1)
+                pin.setText("");
+            if(count==2)
+                pin.setText("*");
+            if(count==3)
+                pin.setText("**");
+            if(count==4)
+                pin.setText("***");
+            count--;
+            
+            //Update pinNum variable, to remove last char
+            if(pinNum.length()==1)//If only one char
+                pinNum="";//Clear it
+            else
+                pinNum = pinNum.substring(0,pinNum.length()-1);//End index is exclusive
+        }
+        
+        //If on 2nd screen and button pressed is 1, and still have not reached count of 4
+        if (primaryStage.getScene()==scene2 && e.getSource()==b1 && count<4)
+        {
+            pin.setText(pin.getText()+"*");//Add a star
+            count++;
+            pinNum+="1";//Add this number to the pin
+        }
+        
+        //If on 2nd screen and button pressed is 2, and still have not reached count of 4
+        if (primaryStage.getScene()==scene2 && e.getSource()==b2 && count<4)
+        {
+            pin.setText(pin.getText()+"*");//Add a star
+            count++;
+            pinNum+="2";//Add this number to the pin
+        }
+        
+        //If on 2nd screen and button pressed is 3, and still have not reached count of 4
+        if (primaryStage.getScene()==scene2 && e.getSource()==b3 && count<4)
+        {
+            pin.setText(pin.getText()+"*");//Add a star
+            count++;
+            pinNum+="3";//Add this number to the pin
+        }
+        
+        //If on 2nd screen and button pressed is 4, and still have not reached count of 4
+        if (primaryStage.getScene()==scene2 && e.getSource()==b4 && count<4)
+        {
+            pin.setText(pin.getText()+"*");//Add a star
+            count++;
+            pinNum+="4";//Add this number to the pin
+        }
+        
+        //If on 2nd screen and button pressed is 5, and still have not reached count of 4
+        if (primaryStage.getScene()==scene2 && e.getSource()==b5 && count<4)
+        {
+            pin.setText(pin.getText()+"*");//Add a star
+            count++;
+            pinNum+="5";//Add this number to the pin
+        }
+        
+        //If on 2nd screen and button pressed is 6, and still have not reached count of 4
+        if (primaryStage.getScene()==scene2 && e.getSource()==b6 && count<4)
+        {
+            pin.setText(pin.getText()+"*");//Add a star
+            count++;
+            pinNum+="6";//Add this number to the pin
+        }
+        
+        //If on 2nd screen and button pressed is 7, and still have not reached count of 4
+        if (primaryStage.getScene()==scene2 && e.getSource()==b7 && count<4)
+        {
+            pin.setText(pin.getText()+"*");//Add a star
+            count++;
+            pinNum+="7";//Add this number to the pin
+        }
+        
+        //If on 2nd screen and button pressed is 8, and still have not reached count of 4
+        if (primaryStage.getScene()==scene2 && e.getSource()==b8 && count<4)
+        {
+            pin.setText(pin.getText()+"*");//Add a star
+            count++;
+            pinNum+="8";//Add this number to the pin
+        }
+        
+        //If on 2nd screen and button pressed is 9, and still have not reached count of 4
+        if (primaryStage.getScene()==scene2 && e.getSource()==b9 && count<4)
+        {
+            pin.setText(pin.getText()+"*");//Add a star
+            count++;
+            pinNum+="9";//Add this number to the pin
+        }
+        
+        //If on 2nd screen and button pressed is 0, and still have not reached count of 4
+        if (primaryStage.getScene()==scene2 && e.getSource()==b0 && count<4)
+        {
+            pin.setText(pin.getText()+"*");//Add a star
+            count++;
+            pinNum+="0";//Add this number to the pin
+        }
+        
+        //If pin has 4 numbers and press enter, Create card for ATM class
+        if (e.getSource()==enter && count==4)
+        {
+            //Go to main menu screen
+            primaryStage.setScene(scene3);
+            pinNumb = Integer.parseInt(pinNum);
+            
+            //CREATE CARD
+            //Create savigns and checkings accounts with random balances from 0 to 15,000
+            //Generate random nums: (int)(Math.random() * (max-min)+1) + min 
+            Account sav = new Account((int)(Math.random()*(15000)+1), "Savings"); //balance, type
+            Account check = new Account((Math.random()*(15000)+1), "Chequing"); //balance, type
+            //Create a variable that holds 16 random numbers (0-9) for the account number
+            String cardNumber = "";
+            for (int i=0 ; i<16 ; i++)
+                cardNumber+=((int)(Math.random()*(9)+1));
+            //Create a card with this info (int number, int pin, Account savings, Account checkings)
+            atm.createCard(cardNumber,pinNumb,sav,check); 
+            atm.enter(cardNumber, pinNumb);//For index in ArrayList
+        }
+        
+        if(e.getSource()==cancel || e.getSource() == exit || e.getSource() == exit2 || e.getSource() == exit4 || e.getSource() == exit5 || e.getSource() == exit6 || e.getSource() == exit7)
+        {
+            //Go to goodbye screen
+            primaryStage.setScene(scene4);
+            removeCard.play();//Remove card sound
+        }
+        
+        //If get receipt pressed
+        if(e.getSource()==receipt)
+        {
+            removeCard.stop();//Remove card sound stop
+            try{
+            	atm.printReceipt();
+            }
+            catch(IOException io)
+            {
+            	System.out.println(io.toString());
+            	System.out.println("File not found!");
+            }
+            receipt.setDisable(true);
+        }
+        
+        //If on last screen and exit
+        if (e.getSource() == exit3)
+        {
+            System.exit(0);
+        }
+        
+        //If main pressed, go to main menu
+        if(e.getSource()==main || e.getSource()==main2 || e.getSource()==main3 || e.getSource()==main4 || e.getSource()==main5)
+        {
+            primaryStage.setScene(scene3);
+        }
+        
+        //If balance inquiry 
+        if(e.getSource()==balance)
+        {
+            primaryStage.setScene(scene5);//Choose account
+            option=2;//(1=transfer, 2=balance, 3=deposit, 4=withdraw)
+            
+        }
+        
+        //If pressed savings and want to check balance (option=2)
+        if(e.getSource()==savings && option==2)
+        {
+            //Only 2 decimal places
+            NumberFormat nf = NumberFormat.getInstance();
+            nf.setMaximumFractionDigits(2);
+            balanceInquiry.setText("Your current balance is: $" + nf.format(atm.checkBalance("Savings")));
+            primaryStage.setScene(scene6);
+        }
+        //If pressed checking and want to check balance (option=2)
+        if(e.getSource()==checking && option==2)
+        {
+            //Only two decimals
+            NumberFormat nf = NumberFormat.getInstance();
+            nf.setMaximumFractionDigits(2);
+            balanceInquiry.setText("Your current balance is: $" + nf.format(atm.checkBalance("Chequing")));
+            primaryStage.setScene(scene6);
+        }
+        
+        //If withdraw  
+        if(e.getSource()==withdraw)
+        {
+            primaryStage.setScene(scene5);//Choose account
+            option=4;//(1=transfer, 2=balance, 3=deposit, 4=withdraw)
+            
+        }
+        //If pressed savings and want to withdraw (option=4)
+        if(e.getSource()==savings && option==4)
+        {
+            //Withdraw screen
+            primaryStage.setScene(scene7);
+            option2=1;//(1=savings, 2=checkings)
+        }
+        //If pressed checking and want to withdraw (option=4)
+        if(e.getSource()==checking && option==4)
+        {
+            //Withdraw screen
+            primaryStage.setScene(scene7);
+            option2=2;//(1=savings, 2=checkings)
+        }
+        
+        //If withdraw from savings(option=4 and option2=1) and pressed 20
+        if (e.getSource()==b20 && option==4 && option2==1)
+        {
+            if(atm.withdraw("Savings", 20))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If withdraw from checkings(option=4 and option2=2) and pressed 20
+        if (e.getSource()==b20 && option==4 && option2==2)
+        {
+            if(atm.withdraw("Chequing", 20))
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If withdraw from savings(option=4 and option2=1) and pressed 40
+        if (e.getSource()==b40 && option==4 && option2==1)
+        {
+            if(atm.withdraw("Savings", 40))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If withdraw from checkings(option=4 and option2=2) and pressed 40
+        if (e.getSource()==b40 && option==4 && option2==2)
+        {
+            if(atm.withdraw("Chequing", 40))
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If withdraw from savings(option=4 and option2=1) and pressed 60
+        if (e.getSource()==b60 && option==4 && option2==1)
+        {
+            if(atm.withdraw("Savings", 60))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If withdraw from checkings(option=4 and option2=2) and pressed 60
+        if (e.getSource()==b60 && option==4 && option2==2)
+        {
+            if(atm.withdraw("Chequing", 60))
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If withdraw from savings(option=4 and option2=1) and pressed 80
+        if (e.getSource()==b80 && option==4 && option2==1)
+        {
+            if(atm.withdraw("Savings", 80))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If withdraw from checkings(option=4 and option2=2) and pressed 80
+        if (e.getSource()==b80 && option==4 && option2==2)
+        {
+            if(atm.withdraw("Chequing", 80))
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If withdraw from savings(option=4 and option2=1) and pressed 100
+        if (e.getSource()==b100 && option==4 && option2==1)
+        {
+            if(atm.withdraw("Savings", 100))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If withdraw from checkings(option=4 and option2=2) and pressed 100
+        if (e.getSource()==b100 && option==4 && option2==2)
+        {
+            if(atm.withdraw("Chequing", 100))
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If withdraw from savings(option=4 and option2=1) and pressed 200
+        if (e.getSource()==b200 && option==4 && option2==1)
+        {
+            if(atm.withdraw("Savings", 200))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If withdraw from checkings(option=4 and option2=2) and pressed 200
+        if (e.getSource()==b200 && option==4 && option2==2)
+        {
+            if(atm.withdraw("Chequing", 200))
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        
+        //If deposit  
+        if(e.getSource()==deposit)
+        {
+            primaryStage.setScene(scene5);//Choose account
+            option=3;//(1=transfer, 2=balance, 3=deposit, 4=withdraw)  
+        }
+        
+        //If pressed savings and want to deposit (option=3)
+        if(e.getSource()==savings && option==3)
+        {
+            //Withdraw screen
+            primaryStage.setScene(scene7);
+            option2=1;//(1=savings, 2=checkings)
+        }
+        
+        //If pressed checking and want to deposit (option=3)
+        if(e.getSource()==checking && option==3)
+        {
+            //Withdraw screen
+            primaryStage.setScene(scene7);
+            option2=2;//(1=savings, 2=checkings)
+        }
+       
+
+        //If deposit from savings(option=3 and option2=1) and pressed 20
+        if (e.getSource()==b20 && option==3 && option2==1)
+        {
+            atm.deposit("Savings", 20);
+            //Print transaction completed
+            transaction.setText("Transaction completed sucesfully.");
+            primaryStage.setScene(scene8);
+            tranS.play();//Success sound
+
+        }
+        
+        //If deposit from checkings(option=3 and option2=2) and pressed 20
+        if (e.getSource()==b20 && option==3 && option2==2)
+        {
+            atm.deposit("Chequing", 20);
+            //Print transaction completed
+            transaction.setText("Transaction completed sucesfully.");
+            primaryStage.setScene(scene8);
+            tranS.play();//Success sound
+
+        }
+        
+        //If deposit from savings(option=3 and option2=1) and pressed 40
+        if (e.getSource()==b40 && option==3 && option2==1)
+        {
+            atm.deposit("Savings", 40);
+            //Print transaction completed
+            transaction.setText("Transaction completed sucesfully.");
+            primaryStage.setScene(scene8);
+            tranS.play();//Success sound
+
+        }
+        
+        //If deposit from checkings(option=3 and option2=2) and pressed 40
+        if (e.getSource()==b40 && option==3 && option2==2)
+        {
+            atm.deposit("Chequing", 40);
+            //Print transaction completed
+            transaction.setText("Transaction completed sucesfully.");
+            primaryStage.setScene(scene8);
+            tranS.play();//Success sound
+
+        }
+        
+        //If deposit from savings(option=3 and option2=1) and pressed 60
+        if (e.getSource()==b60 && option==3 && option2==1)
+        {
+            atm.deposit("Savings", 60);
+            //Print transaction completed
+            transaction.setText("Transaction completed sucesfully.");
+            primaryStage.setScene(scene8);
+            tranS.play();//Success sound
+
+        }
+        
+        //If deposit from checkings(option=3 and option2=2) and pressed 60
+        if (e.getSource()==b60 && option==3 && option2==2)
+        {
+            atm.deposit("Chequing", 60);
+            //Print transaction completed
+            transaction.setText("Transaction completed sucesfully.");
+            primaryStage.setScene(scene8);
+            tranS.play();//Success sound
+
+        }
+        
+        //If deposit from savings(option=3 and option2=1) and pressed 80
+        if (e.getSource()==b80 && option==3 && option2==1)
+        {
+            atm.deposit("Savings", 80);
+            //Print transaction completed
+            transaction.setText("Transaction completed sucesfully.");
+            primaryStage.setScene(scene8);
+            tranS.play();//Success sound
+
+        }
+        
+        //If deposit from checkings(option=3 and option2=2) and pressed 80
+        if (e.getSource()==b80 && option==3 && option2==2)
+        {
+            atm.deposit("Chequing", 80);
+            //Print transaction completed
+            transaction.setText("Transaction completed sucesfully.");
+            primaryStage.setScene(scene8);
+            tranS.play();//Success sound
+
+        }
+        
+        //If deposit from savings(option=3 and option2=1) and pressed 100
+        if (e.getSource()==b100 && option==3 && option2==1)
+        {
+            atm.deposit("Savings", 100);
+            //Print transaction completed
+            transaction.setText("Transaction completed sucesfully.");
+            primaryStage.setScene(scene8);
+            tranS.play();//Success sound
+
+        }
+        
+        //If deposit from checkings(option=3 and option2=2) and pressed 100
+        if (e.getSource()==b100 && option==3 && option2==2)
+        {
+            atm.deposit("Chequing", 100);
+            //Print transaction completed
+            transaction.setText("Transaction completed sucesfully.");
+            primaryStage.setScene(scene8);
+            tranS.play();//Success sound
+
+        }
+        
+        //If deposit from savings(option=3 and option2=1) and pressed 200
+        if (e.getSource()==b200 && option==3 && option2==1)
+        {
+            atm.deposit("Savings", 200);
+            //Print transaction completed
+            transaction.setText("Transaction completed sucesfully.");
+            primaryStage.setScene(scene8);
+            tranS.play();//Success sound
+
+        }
+        
+        //If deposit from checkings(option=3 and option2=2) and pressed 200
+        if (e.getSource()==b200 && option==3 && option2==2)
+        {
+            atm.deposit("Chequing", 200);
+            //Print transaction completed
+            transaction.setText("Transaction completed sucesfully.");
+            primaryStage.setScene(scene8);
+            tranS.play();//Success sound
+
+        }
+        
+        
+        
+        //If transfer  
+        if(e.getSource()==transfer)
+        {
+            primaryStage.setScene(scene9);//Choose account to transfer from to
+            option=1;//(1=transfer, 2=balance, 3=deposit, 4=withdraw)  
+        }
+        
+        //If pressed savings to checkings and want to transfer (option=1)
+        if(e.getSource()==sToc && option==1)
+        {
+            //Choose amount
+            primaryStage.setScene(scene7);
+            option2=1;//(1=savings to checkings, 2=checkings to savings)
+        }
+        
+        //If pressed checkings to savings and want to transfer (option=1)
+        if(e.getSource()==cTos && option==1)
+        {
+            //Choose amount
+            primaryStage.setScene(scene7);
+            option2=2;//(1=savings to checkings, 2=checkings to savings)
+        }
+        
+        //Transfer method: (from this, to this, amount)
+        //If transfer from savings to checkings(option=1 and option2=1) and pressed 20
+        if (e.getSource()==b20 && option==1 && option2==1)
+        {
+            if(atm.transfer("Savings", "Chequing", 20))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from checkings to savings(option=1 and option2=2) and pressed 20
+        if (e.getSource()==b20 && option==1 && option2==2)
+        {
+            if(atm.transfer("Chequing", "Savings", 20))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        
+        //If transfer from savings to checkings(option=1 and option2=1) and pressed 40
+        if (e.getSource()==b40 && option==1 && option2==1)
+        {
+            if(atm.transfer("Savings", "Chequing", 40))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from checkings to savings(option=1 and option2=2) and pressed 40
+        if (e.getSource()==b40 && option==1 && option2==2)
+        {
+            if(atm.transfer("Chequing", "Savings", 40))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from savings to checkings(option=1 and option2=1) and pressed 60
+        if (e.getSource()==b60 && option==1 && option2==1)
+        {
+            if(atm.transfer("Savings", "Chequing", 60))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from checkings to savings(option=1 and option2=2) and pressed 60
+        if (e.getSource()==b60 && option==1 && option2==2)
+        {
+            if(atm.transfer("Chequing", "Savings", 60))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from savings to checkings(option=1 and option2=1) and pressed 80
+        if (e.getSource()==b80 && option==1 && option2==1)
+        {
+            if(atm.transfer("Savings", "Chequing", 80))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from checkings to savings(option=1 and option2=2) and pressed 80
+        if (e.getSource()==b80 && option==1 && option2==2)
+        {
+            if(atm.transfer("Chequing", "Savings", 80))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from savings to checkings(option=1 and option2=1) and pressed 100
+        if (e.getSource()==b100 && option==1 && option2==1)
+        {
+            if(atm.transfer("Savings", "Chequing", 100))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from checkings to savings(option=1 and option2=2) and pressed 100
+        if (e.getSource()==b100 && option==1 && option2==2)
+        {
+            if(atm.transfer("Chequing", "Savings", 100))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from savings to checkings(option=1 and option2=1) and pressed 200
+        if (e.getSource()==b200 && option==1 && option2==1)
+        {
+            if(atm.transfer("Savings", "Chequing", 200))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+        //If transfer from checkings to savings(option=1 and option2=2) and pressed 200
+        if (e.getSource()==b200 && option==1 && option2==2)
+        {
+            if(atm.transfer("Chequing", "Savings", 200))//Method returns boolean
+            {
+                //Print transaction completed
+                transaction.setText("Transaction completed sucesfully.");
+                primaryStage.setScene(scene8);
+                tranS.play();//Success sound
+            }
+            else
+            {
+                //Print could not complete transaction
+                transaction.setText("Transaction failed, not enough funds.");
+                primaryStage.setScene(scene8);
+                tranF.play();//Fail sound
+            }
+        }
+        
+    }
+}
